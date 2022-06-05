@@ -30,20 +30,22 @@ def add_stuff_to_string(stuff):
     return stuff
 
 def get_24h_change(element):
+    positive_change = 1
     change = element.find("span", class_="sc-15yy2pl-0 kAXKAX")
     if(change is None):
-        return "error"
-    
-    change_result = change.text.strip()
+        positive_change = 0
+        change = element.find("span", class_="sc-15yy2pl-0 hzgCfk")
 
-    up_or_down = change.find("span", class_="icon-Caret-up")
-    if(up_or_down is not None):
-        #it went up!
-        change_result += " ^"
+    if(change is None):
+        return "error"
+
+    change = change.text.strip()
+
+    if(positive_change):
+        change += "^"
     else:
-        change_result += " v"
-    
-    return change_result
+        change += "v"
+    return change
 
 
 def get_formatted_output(crypto_element):
