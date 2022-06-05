@@ -2,6 +2,9 @@
 A webscraper for scraping prices of popular cryptocurrencies.
 
 ## Dependencies
+A python environment, see following link for setting it up:
+[Python environment setup](https://www.tutorialspoint.com/python/python_environment.htm)
+ 
 Python requests library, can be installed with
 ```
 sudo pip install requests
