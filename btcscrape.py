@@ -29,7 +29,8 @@ def add_stuff_to_string(stuff):
         stuff += " "
     return stuff
 
-def get_24h_change(element):
+
+def get_24h_change(element, iteration):
     positive_change = 1
     change = element.find("span", class_="sc-15yy2pl-0 kAXKAX")
     if(change is None):
@@ -37,15 +38,35 @@ def get_24h_change(element):
         change = element.find("span", class_="sc-15yy2pl-0 hzgCfk")
 
     if(change is None):
-        return "error"
+        return add_stuff_to_string("N/A")
 
+    other_change = ""
+    if(iteration == 0):
+        parent = change.parent
+        sibling = parent.find_next_sibling()
+        other_change += get_24h_change(sibling, 1)
+        #kör funktionen igen
+
+    #format the string before returning
     change = change.text.strip()
+    change = add_stuff_to_string(change)
 
+    #color code the output
     if(positive_change):
-        change += "^"
+        change = "\033[0;32m" + change + "\033[0;37m"
     else:
-        change += "v"
+        change = "\033[0;31m" + change + "\033[0;37m"
+
+    if(len(other_change) > 0):
+        change += other_change
+    
     return change
+
+def get_market_cap(element):
+    market_cap = element.find("span", class_="sc-1ow4cwt-0 iosgXe")
+    if(market_cap is None):
+        return "error"
+    return market_cap.text.strip()
 
 
 def get_formatted_output(crypto_element):
@@ -63,11 +84,15 @@ def get_formatted_output(crypto_element):
     crypto_string += add_stuff_to_string(price)
 
     # get price difference 24h
-    change = get_24h_change(crypto_element)
+    change = get_24h_change(crypto_element, 0)
     if(change == "error"):
         return "error"
     crypto_string += change
-    # get price difference 7 days
+    
+    market_cap = get_market_cap(crypto_element)
+    if(market_cap == "error"):
+        return "error"
+    crypto_string += market_cap
     return crypto_string
 
 
@@ -84,7 +109,3 @@ for tr in body_tr:
     if(element == "error"):
         break
     print(element)
-    #introduce error checking in the loop (function)
-    
-
-
