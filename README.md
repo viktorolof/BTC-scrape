@@ -23,3 +23,6 @@ or
 ```
 python3 btcscrape.py
 ```
+
+## Making it a command
+In order to use the program as a command, follow the guide in this link [Make Python script into a command](https://dbader.org/blog/how-to-make-command-line-commands-with-python)
