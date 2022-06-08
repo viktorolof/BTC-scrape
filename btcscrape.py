@@ -109,6 +109,7 @@ def main():
         # clear terminal before beginning
         print(CLEAR_TERMINAL)
         print_first_string()
+        print("----------------------------------------------------------------------")
 
         for tr in body_tr:
             element = get_formatted_output(tr)
