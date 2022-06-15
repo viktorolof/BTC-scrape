@@ -34,37 +34,56 @@ def add_stuff_to_string(stuff):
         stuff += " "
     return stuff
 
+def check_for_sibling(element):
+    parent = element.parent
+    sibling = parent.find_next_sibling()
+    return 1 if sibling is not None else 0
 
-def get_change(element, iteration):
-    positive_change = 1
+#TODO: Make these two functions the same why doesnt the regular way work????
+def get_positive_string(string):
+    res = string + UP_ARROW
+    res = add_stuff_to_string(res)
+    res = GREEN + res + WHITE
+    return res
 
-    # Search for positive change
-    change = element.find("span", class_="sc-15yy2pl-0 kAXKAX")
-    if(change is None):
-        positive_change = 0
-        # Search for negative change
-        change = element.find("span", class_="sc-15yy2pl-0 hzgCfk")
+def get_negative_string(string):
+    res = string + DOWN_ARROW
+    res = add_stuff_to_string(res)
+    res = RED+ res + WHITE
+    return res
 
-    if(change is None):
-        return add_stuff_to_string("N/A")
 
-    seven_day_change = ""
-    if(iteration == 0):
-        parent = change.parent
-        sibling = parent.find_next_sibling()
-        seven_day_change += get_change(sibling, 1)
+def get_change(element):
+    positive_changes = element.find_all("span", class_="sc-15yy2pl-0 kAXKAX")
+    negative_changes = element.find_all("span", class_="sc-15yy2pl-0 hzgCfk")
+    twentyfour_h_change = ""
+    sevenday_change = ""
 
-    #format the string before returning
-    change = change.text.strip()
-    change = change + UP_ARROW if positive_change else change + DOWN_ARROW
-    change = add_stuff_to_string(change)
-
-    #color code the output
-    change = GREEN + change + WHITE if positive_change else RED + change + WHITE
-
-    change += seven_day_change
+    if(len(positive_changes) > 0):
+        #if an element has a sibling it is the 24h change
+        if(check_for_sibling(positive_changes[0]) == 1):
+            #if positive changes are 2 or greater both 24h and 7day change is positive
+            twentyfour_h_change += get_positive_string(positive_changes[0].text.strip())
+            if(len(positive_changes) > 1):
+                sevenday_change += get_positive_string(positive_changes[1].text.strip())
+        else:
+            #if there is no sibling it is the 7day change
+            sevenday_change += get_positive_string(positive_changes[0].text.strip())
     
-    return change
+    if(len(negative_changes) > 0):
+        if(check_for_sibling(negative_changes[0]) == 1):
+            #if an element has a sibling it is the 24h change
+            twentyfour_h_change += get_negative_string(negative_changes[0].text.strip())
+            if(len(negative_changes) > 1):
+                #if negative changes are 2 or greater both 24h and 7day change is negative
+                sevenday_change += get_negative_string(negative_changes[1].text.strip())
+        else:
+            #if there is no sibling it is the 7day change
+            sevenday_change += get_negative_string(negative_changes[0].text.strip())
+
+    #add error checking
+
+    return twentyfour_h_change + sevenday_change
 
 def get_market_cap(element):
     market_cap = element.find("span", class_="sc-1ow4cwt-0 iosgXe")
@@ -84,7 +103,7 @@ def get_formatted_output(crypto_element):
     price = get_crypto_price(crypto_element)
     crypto_string += add_stuff_to_string(price)
 
-    crypto_string += get_change(crypto_element, 0)
+    crypto_string += get_change(crypto_element)
     
     crypto_string += get_market_cap(crypto_element)
     return crypto_string
@@ -96,6 +115,7 @@ def print_first_string():
     first_string += add_stuff_to_string("7 days")
     first_string += "Market Cap"
     print(first_string)
+    print("----------------------------------------------------------------------")
 
 def main():
     while(1):
@@ -109,7 +129,6 @@ def main():
         # clear terminal before beginning
         print(CLEAR_TERMINAL)
         print_first_string()
-        print("----------------------------------------------------------------------")
 
         for tr in body_tr:
             element = get_formatted_output(tr)
